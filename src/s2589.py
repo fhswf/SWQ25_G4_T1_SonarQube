@@ -4,7 +4,6 @@ def is_positive():
     return True
 
 def main():
-    value = int(input("Enter a number: "))
 
     # Gratuitous Boolean expression
     if is_positive() == True:

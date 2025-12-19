@@ -12,12 +12,8 @@ class MyClass(object):
 
 def myfunc(param):
     if param is None:
-        print(param.test())  
+        print(param.test())   
 
-    if param == None:
-        print(param.test())  
-    else:
-        print(param.test())  
 
 
 #adding something for commit
