@@ -1,0 +1,53 @@
+image: python:3.9
+
+definitions:
+  caches:
+    sonar: ~/.sonar/cache  # Caching SonarQube artifacts will speed up your build
+  steps:
+    - step: &run-tests
+        name: Run Python tests with coverage
+        caches:
+          - pip
+        script:
+          - pip install -r requirements.txt
+          - pytest --cov=. --cov-report=xml:coverage.xml --cov-report=html:coverage_html tests/ || true
+        after-script:
+          # Ensure coverage report exists even if tests fail
+          - if [ ! -f coverage.xml ]; then echo "<?xml version='1.0' encoding='UTF-8'?><coverage version='1.0'></coverage>" > coverage.xml; fi
+        artifacts:
+          - coverage.xml
+          - coverage_html/**
+    
+    - step: &sonarqube-analysis
+        name: SonarQube analysis
+        caches:
+          - sonar
+        script:
+          # Download and install SonarQube Scanner
+          - pipe: sonarsource/sonarqube-scan:4.0.0
+            variables:
+              SONAR_HOST_URL: ${SONAR_HOST_URL}
+              SONAR_TOKEN: ${SONAR_TOKEN}
+              # Optional variables:
+              # SONAR_SCANNER_OPTS: -Xmx512m
+              DEBUG: "true"
+
+    - step: &sonarqube-quality-gate
+        name: Check Quality Gate on SonarQube
+        max-time: 5 # value you should use depends on the analysis time for your project
+        script:
+          - pipe: sonarsource/sonarqube-quality-gate:1.2.1
+            variables:
+              SONAR_TOKEN: ${SONAR_TOKEN}
+
+pipelines:
+  branches:
+    main:
+      - step: *run-tests
+      - step: *sonarqube-analysis
+  
+  pull-requests:
+    '**':
+      - step: *run-tests
+      - step: *sonarqube-analysis
+      - step: *sonarqube-quality-gate

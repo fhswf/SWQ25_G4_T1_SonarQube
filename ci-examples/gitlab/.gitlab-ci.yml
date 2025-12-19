@@ -1,0 +1,53 @@
+stages:
+  - test
+  - sonarqube-server-analysis
+
+test:
+  stage: test
+  image: python:3.8
+  script:
+    - echo "Running tests..."
+    - python --version
+    - python -m pip install --upgrade pip
+    - pip install pytest pytest-cov
+    - pytest --cov=. --cov-report=xml:coverage.xml --cov-report=html:coverage_html tests/ || true
+  artifacts:
+    paths:
+      - coverage.xml
+      - coverage_html/
+    expire_in: 1 hour
+  only:
+    - main
+    - develop
+    - merge_requests
+
+
+sonarqube-server-analysis:
+  stage: sonarqube-server-analysis
+  image:
+    name: sonarsource/sonar-scanner-cli:latest
+    entrypoint: [""]
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
+    GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
+  cache:
+    key: "${CI_JOB_NAME}"
+    paths:
+      - .sonar/cache
+  dependencies:
+    - test  # Explicitly specify that this job depends on the test job and needs its artifacts
+  needs:
+    - job: test
+      artifacts: true  # Explicitly request artifacts from the test job
+  script:
+      - |
+        sonar-scanner -X \
+        -Dsonar.token=$SONAR_TOKEN \
+        -Dsonar.host.url=$SONAR_HOST_URL \
+        -Dsonar.python.coverage.reportPaths=coverage.xml \
+        -Dsonar.sources=src/
+  allow_failure: false
+  only:
+    - main
+    - develop
+    - merge_requests
