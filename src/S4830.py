@@ -1,4 +1,4 @@
 import requests
 
-requests.request('GET', 'https://example.domain', verify=False) # Noncompliant
-requests.get('https://example.domain', verify=False) # Noncompliant
+requests.request('GET', 'https://example.domain') # Noncompliant
+requests.get('https://example.domain') # Noncompliant

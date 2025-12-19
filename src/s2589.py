@@ -1,6 +1,6 @@
 import random
 
-def is_positive(number):
+def is_positive():
     return True
 
 def main():

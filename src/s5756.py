@@ -17,16 +17,12 @@ print("Result:", result)
 #adding comment to trigger commit
 
 
-name = name
 
 import tempfile
 
-filename = tempfile.mktemp() # Noncompliant
-tmp_file = open(filename, "w+")
+tmp_file = tempfile.NamedTemporaryFile(delete=False)
 
 
 
 def fpn(a):
-  j = 10
   return i + a       # Noncompliant
-  j += 1             # this is never executed
