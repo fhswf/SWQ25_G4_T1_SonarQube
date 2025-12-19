@@ -5,7 +5,6 @@ connection.MySQLConnection(host='localhost', user='sonarsource', password='')  #
 class MyClass(object):
     def __init__(self):
         self.message = 'Hello'
-        #return self  # Noncompliant
 
 
 
