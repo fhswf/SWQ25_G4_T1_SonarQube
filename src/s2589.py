@@ -7,7 +7,7 @@ def main():
     value = int(input("Enter a number: "))
 
     # Gratuitous Boolean expression
-    if is_positive(value) == True:
+    if is_positive() == True:
         print("The number is positive.")
     else:
         print("The number is not positive.")
